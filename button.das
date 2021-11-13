@@ -2,6 +2,10 @@ require daslib/media
 require physObj
 require colorUtils
 
+enum ButtonAction
+    RESET
+    QUIT
+
 class Button
     box: Box?
     color: uint
@@ -13,6 +17,11 @@ class Button
     defaultBrightness: float = 0.5
     maxBrightness: float = 1.0
     defaultColor: uint
+    fontDefaultScale: float
+    maxFontScale: float
+    actualFontScale:int
+    buttonAction: ButtonAction = ButtonAction RESET
+    clicked: bool = false
 
 
     def Button(_pos : float2; _size : float2; _color: uint)
@@ -21,6 +30,10 @@ class Button
         box = new Box(_pos, _size)
         defaultScale = _size
         maxScale = _size * 1.25
+        fontDefaultScale = 15.0
+        maxFontScale = 20.0
+        actualFontScale = 15
+       
 
     def onMouseOver()
         if (!isOvered)
@@ -29,10 +42,15 @@ class Button
     def onMouseOut()
         if (isOvered)
             isOvered = false
+            clicked = false
 
     def onMouseLeftDown()
         if (isOvered)
-            isOvered = false
+            clicked = true
+
+    def onMouseLeftUp()
+        if (isOvered)
+            clicked = false
 
     def isOver() : bool
         return isOvered
@@ -45,15 +63,18 @@ class Button
         var newScale= lerp(defaultScale, maxScale, overTime)
         box->setScale(newScale)
         color = multColor(defaultColor, lerp(defaultBrightness, maxBrightness, overTime))
-        isOvered = false
+        actualFontScale = int(lerp(fontDefaultScale, maxFontScale, overTime))
+
 
     def draw()
         var left = box.pos.x - box.width * 0.5
         var top = box.pos.y - box.height * 0.5
         fill_rect(left, top, box.width, box.height, color)
         set_font_name("Aqum.ttf")
-        set_font_size(15)
-        text_out(box.pos.x, box.pos.y, text, make_color(0.0))
+        set_font_size(actualFontScale)
+        var sizeText = get_text_size(text)
+        var posText = float2(box.pos.x - sizeText.x * 0.5, box.pos.y - sizeText.y * 0.5) 
+        text_out(posText.x, posText.y, text, make_color(0.0))
 
 class ButtonMgr
     buttons: array<Button?>
@@ -77,3 +98,10 @@ class ButtonMgr
     def onMouseLeftDown()
         for b in buttons
             b->onMouseLeftDown()
+    
+    def onMouseLeftUp()
+        for b in buttons
+            b->onMouseLeftUp()
+
+    def finalize()
+        clear(buttons)

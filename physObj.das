@@ -35,16 +35,28 @@ class Sphere : physObj
     pos: float2
     radius: float
 
+    def Sphere(_pos: float2; _radius: float)
+        pos = _pos
+        radius = _radius
     def rescale(v : float)
         radius = radius * v
     def grow(v:float)
         radius = radius + radius * v
 
-
 //////// function ///////
 
+
+def colTest(s1: Sphere?; s: Sphere?) :bool
+    var dir = s1.pos - s.pos
+    var l: float
+    l = length_sq(dir)
+    var radiusSq = sqr(s.radius + s1.radius)
+    if (l < radiusSq)
+        return true
+    return false
+
 def colTest(b1: Box?; b2: Box?):bool
-    return true
+    //return true
     if (b1.pos.x - (b1.width * 0.5) >= b2.pos.x - (b2.width * 0.5) &&
       b1.pos.x + (b1.width * 0.5) <= b2.pos.x + (b2.width * 0.5) &&
       b1.pos.y - (b1.height * 0.5) >= b2.pos.y - (b2.height * 0.5) &&

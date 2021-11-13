@@ -1,11 +1,15 @@
 require daslib/media
-require physObj
-require button
-require menu
-require scene
-
 options debugger            // uncomment for debug in VS Code
 require daslib/debug        // uncomment for debug in VS Code
+
+
+require physObj
+require button
+require gameScene
+require scene
+require catMulRom
+
+
 
 enum sceneType
     MENU
@@ -16,30 +20,33 @@ var
     windowX: int = 800
     windowY: int = 600
 
-struct Terrain
-    vertices : array<float2>
 
 
 
 //todo
-def initTerrain(var t : Terrain)
-    var rndSeeds = int4( 5, 8, 9, 7 )
-    let seed = random_int(rndSeeds)
-    for i in range(get_screen_width())
-        let curHeight = float(uint_noise_1D(i, 3u)) / 100000000.0;
-        var values = float2(float(i), float(curHeight))
-        push(t.vertices, values)
+//def initTerrain(var t : Terrain)
+//    var rndSeeds = int4( 5, 8, 9, 7 )
+//    let seed = random_int(rndSeeds)
+//    var pointsToPass : array<float2>
+//    //for i in range(t.nbPoints)
+//    //    var y = random_float(rndSeeds) * 50.0 + 300.0
+//    //    var pts : float2 = float2(((float(i)/float(t.nbPoints))) * float(get_screen_width()), y)
+//    //    push(pointsToPass, pts)
+//    //t.nbVertices = setSplinePoints(pointsToPass, t.vertices, t.nbPoints)
 
 struct GameMode
     playerNum: int = 2
-
 
 // 'initialize' runs once when game starts and every hot-reload
 [export]
 def initialize
     set_window_title("DasProject")
-    set_resolution(800, 600)
-    scene = new Menu()
+    var x = 1920
+    var y = 1080
+    set_resolution(x, y)
+    scene = new GameScene()
+    //scene->initTerrain()
+    //initTerrain(scene.terrain)
 
 
 // this function is called to update game data,
@@ -59,9 +66,10 @@ def act(dt: float)
 def draw
     //for xy in scene.terrain.vertices
     //    fill_circle(xy.x, xy.y, 1.0, 0xFFD80404)
-
+    fill_rect(0, 0, get_screen_width(), get_screen_height(), 0x000000)
     //drawScene
     if (scene != null)
         scene->draw()
+    fill_rect(0, 0, get_screen_width(), get_screen_height(), 0x000000)
 
     return
